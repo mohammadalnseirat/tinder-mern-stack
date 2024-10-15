@@ -99,6 +99,9 @@ export const signin_Post = async (req, res, next) => {
 // ! 3-Function to logout user:
 export const logout_Post = async (req, res, next) => {
   try {
+    // !Clear Cookie:
+    res.clearCookie("jwt");
+    res.status(200).json({ message: "User Logged Out Successfully" });
   } catch (error) {
     console.log("Error Logging Out User", error.message);
     next(error);
