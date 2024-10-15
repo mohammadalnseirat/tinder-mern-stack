@@ -15,7 +15,10 @@ router.post("/logout", logout_Post);
 // !Route to get current(me) user:
 router.get("/me", protectRoute, (req, res, next) => {
   try {
-    res.status(200).json(req.user);
+    res.send({
+      success: true,
+      user: req.user,
+    });
   } catch (error) {
     console.log("Error Getting Current User", error.message);
     next(error);
