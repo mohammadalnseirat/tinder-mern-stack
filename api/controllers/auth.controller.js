@@ -67,7 +67,29 @@ export const signup_Post = async (req, res, next) => {
 
 // ! 2-Function to signin user:
 export const signin_Post = async (req, res, next) => {
+  const { email, password } = req.body;
   try {
+    if (!email || !password || email === "" || password === "") {
+      return next(errorHandler(400, "Please provide all fields"));
+    }
+    const user = await User.findOne({ email }).select("+password");
+    if (!user) {
+      return next(errorHandler(404, "User Not Found"));
+    }
+    const isMatch = await user.matchPassword(password);
+    if (!isMatch) {
+      return next(errorHandler(400, "Invalid Credentials"));
+    }
+    // !Create Token:
+    const token = createToken(user._id);
+    res.cookie("jwt", token, {
+      httpOnly: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      sameSite: "strict",
+      secure: process.env.NODE_ENV === "production",
+    });
+    const { password: pass, ...rest } = user._doc;
+    res.status(200).json(rest);
   } catch (error) {
     console.log("Error Creating Sign In User", error.message);
     next(error);
